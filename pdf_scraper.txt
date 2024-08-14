@@ -1,0 +1,60 @@
+
+import requests
+import openpyxl
+import os,sys
+
+wb = openpyxl.load_workbook('ICMA-Sustainable-Bonds-Database-151022.xlsx')
+os.chdir("S:\IFI Applications\Green_Bong_Makerfest" )
+
+
+
+    
+def download_pdf(sheet):
+    ws = wb[sheet]
+    last_raw = ws.max_row
+    print(ws.cell(row=3, column=6).hyperlink.target)
+    list_link = []
+    for bond in range(3, last_raw):
+        try:
+            link = ws.cell(row=bond, column=6).hyperlink.target
+            name = ws.cell(row=bond, column=1).value
+            country = ws.cell(row=bond, column=2).value
+            if "../.." not in link:
+                list_link.append((name, link, country))
+        except:
+            pass
+    i = 0
+    errors = []
+    for link in list_link:
+        i += 1
+        try:
+
+            print("Downloading file: ", i)
+#             response = requests.get(link[1])
+            response = requests.get(link[1], stream=True)
+            
+           
+            pdf_file_name = os.path.basename(link[1])
+#           
+            if response.status_code == 200:
+                with open(link[2] + "_" + sheet + "_" + pdf_file_name, 'wb') as file:
+                    file.write(response.content)
+                    print('File downloaded successfully')
+            else:
+                print('Failed to download file')
+        
+            
+
+        except:
+            print("file {} had a problem".format(i))
+            print(link)
+            errors.append(link)
+
+            print("All PDF files downloaded")
+            print("Except following errors:")
+            print(errors)
+            print("total errors: {}".format(len(errors)))
+
+
+for sheet in wb.sheetnames:
+    download_pdf(sheet)

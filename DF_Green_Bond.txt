@@ -1,0 +1,54 @@
+import pandas as pd
+import numpy as np
+import os
+import string
+import glob
+import nltk
+from nltk import word_tokenize
+from nltk.tokenize import word_tokenize
+from nltk.stem.porter import PorterStemmer
+
+
+os.chdir("S:\IFI Applications\Green_Bong_Makerfest\Text_files" )
+
+data = os.getcwd()
+files = os.listdir(data)
+stopword_set = nltk.corpus.stopwords.words('english')
+
+print (os.getcwd())
+
+
+def clean_column(column_name):
+   
+    lemmatizer = nltk.stem.WordNetLemmatizer()    
+    w_tokenizer = nltk.tokenize.WhitespaceTokenizer()
+    stemmer = PorterStemmer()
+    
+    
+    word_list=[stemmer.stem(lemmatizer.lemmatize(words.lower())) for words in set(w_tokenizer.tokenize(column_name)) 
+               if words.isalpha()
+               if words not in string.punctuation
+               if words.lower() not in stopword_set]
+               
+    
+    return word_list
+	
+	
+combined_df = pd.DataFrame()
+# try:
+for filename in os.listdir("."):
+    print("filename ", filename)
+    with open(filename, encoding="utf-8") as f:
+        print("f ", f)
+        file =  " ".join(line.strip() for line in f)
+        file = clean_column(file)
+        print("file ", file)
+        data = pd.read_fwf(file )
+        print("-->>data ", "test data")
+        combined_df = pd.concat([combined_df, data])
+# except:
+#     pass
+
+combined_df
+
+pd.read_fwf('US_Sustainability Bonds.txt')

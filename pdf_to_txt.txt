@@ -1,0 +1,66 @@
+
+import io
+import requests
+import openpyxl
+import os,sys
+import pandas as pd
+import numpy as np
+import csv
+import PyPDF2
+
+from pdfminer.pdfinterp import PDFResourceManager, PDFPageInterpreter
+from pdfminer.converter import TextConverter
+from pdfminer.layout import LAParams
+from pdfminer.pdfpage import PDFPage
+
+
+print (os.getcwd())# First go to the required directory
+os.chdir("S:\IFI Applications\Green_Bong_Makerfest" )
+
+# Then print current working directory
+#print ("Current working dir : %s" % os.getcwd())
+print (os.getcwd())
+
+def convert_pdf_to_txt(path):
+    '''Convert pdf content from a file path to text
+
+    :path the file path
+    '''
+    rsrcmgr = PDFResourceManager()
+    codec = 'utf-8'
+    laparams = LAParams()
+
+    with io.StringIO() as retstr:
+        with TextConverter(rsrcmgr, retstr, codec=codec,
+                           laparams=laparams) as device:
+            with open(path, 'rb') as fp:
+                interpreter = PDFPageInterpreter(rsrcmgr, device)
+                password = ""
+                maxpages = 0
+                caching = True
+                pagenos = set()
+
+                for page in PDFPage.get_pages(fp,
+                                              pagenos,
+                                              maxpages=maxpages,
+                                              password=password,
+                                              caching=caching,
+                                              check_extractable=True):
+                    interpreter.process_page(page)
+
+                return retstr.getvalue()
+
+
+
+
+if __name__ == "__main__":
+    for file in os.listdir("."):
+        try:
+            if file.endswith(".pdf"):
+                name, ext = file.split('.')
+                name = convert_pdf_to_txt(file)
+               # Write the text to a file
+                with open(file + ".txt","w" ,encoding="utf-8") as file:
+                    file.write(name)
+        except:
+            pass
